@@ -2,10 +2,6 @@
 Draw rectangles in pymunk and run a simulation.
 """
 
-"""
-Derivative of the veritcal stack demo from the box2d testbed.
-"""
-
 import math
 
 import pygame
@@ -54,21 +50,6 @@ class drawrects():
             shape.friction = 0.5
             self.space.add(body,shape)
                 
-        
-    def update(self, dt):
-        # Here we use a very basic way to keep a set space.step dt. 
-        # For a real game its probably best to do something more complicated.
-        step_dt = 1/250.
-        x = 0
-        while x < dt:
-            x += step_dt
-            self.space.step(step_dt)
-            
-
-    def on_draw(self):
-        self.clear()
-        self.fps_display.draw()  
-        self.space.debug_draw(self.draw_options)
 
     def draw(self):
         ### Clear the screen
@@ -96,7 +77,7 @@ class drawrects():
             elif event.type == KEYDOWN and event.key == K_d:
                 self.drawing = not self.drawing
             
-        fps = 60.
+        fps = 100.
         dt = 1.0/fps/5        
         self.space.step(dt)
         if self.drawing:
@@ -106,6 +87,10 @@ class drawrects():
         self.clock.tick(fps)
         pygame.display.set_caption("fps: " + str(self.clock.get_fps()))
         
+def simulatestruct(blocks):
+    sim = drawrects(blocks)
+    sim.run()
+
 
 def defaultblocks():
     blocks = []
