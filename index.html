@@ -44,14 +44,6 @@
     </div>
   </body>
   <script>
-   var getLanguage = function(code){
-       var firstLine = code.split("\n")[0];
-       if (firstLine == "// language: javascript") {
-           return "javascript";
-       } else {
-           return "webppl";
-       }
-   };
    // load scratch pad contents
    var url = "src/model.js";
    var prog = "";
