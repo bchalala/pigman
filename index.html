@@ -35,6 +35,29 @@
     <script src="lib/jquery.js"></script>
     <script src="lib/paper.js"></script>
     <script src="lib/draw.js"></script>
+    <script>
+        // load scratch pad contents
+        $("#ed-scratch code").load("src/model.js");
+     
+         var getLanguage = function(code){
+             var firstLine = code.split("\n")[0];
+             if (firstLine == "// language: javascript") {
+                return "javascript";
+             } else {
+                return "webppl";
+         }};
+     
+        var scratchComp;
+        $("pre").map(function(i,el) {
+            var comp = wpEditor.setup(el, {language: getLanguage($(el).text())});
+            if (el.id == 'ed-scratch') {
+                scratchComp = comp;
+            }
+        });
+     
+        var throwString = function() { throw 'string error' };
+       </script>
+       <script src="lib/webppl-editor.js"></script>
   </head>
   <body>
     <div class="col">
@@ -42,28 +65,6 @@
       <pre id="ed-scratch"><code></code></pre>
     </div>
   </body>
-  <script>
-   // load scratch pad contents
-   $("#ed-scratch code").load("src/model.js");
-
-    var getLanguage = function(code){
-        var firstLine = code.split("\n")[0];
-        if (firstLine == "// language: javascript") {
-           return "javascript";
-        } else {
-           return "webppl";
-    }};
-
-   var scratchComp;
-   $("pre").map(function(i,el) {
-       var comp = wpEditor.setup(el, {language: getLanguage($(el).text())});
-       if (el.id == 'ed-scratch') {
-           scratchComp = comp;
-       }
-   });
-
-   var throwString = function() { throw 'string error' };
-  </script>
-  <script src="lib/webppl-editor.js"></script>
+  
   <script src="lib/webppl.min.js"></script>
 </html>
