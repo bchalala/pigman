@@ -39,7 +39,7 @@
   </head>
   <body>
     <div class="col">
-      model.js:
+      model.wppl:
       <pre id="ed-scratch"><code></code></pre>
     </div>
   </body>
@@ -53,7 +53,7 @@
             return "webppl";
      }};
 
-    $('#ed-scratch code').load('src/model.js', function() {
+    $('#ed-scratch code').load('src/model.wppl', function() {
         var scratchComp;
         $("pre").map(function(i,el) {
         var comp = wpEditor.setup(el, {language: getLanguage($(el).text())});
