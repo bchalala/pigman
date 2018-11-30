@@ -14,20 +14,16 @@ var genBlock = function (w, h, xp, yp) {
   return {shape: 'rect', static: false, dims: [w, h], x:xp, y: yp}
 }
 
-var addBlock = function(xDim, yDim)
-{
-  var w = uniform(5, 30)
-  var h = uniform(5, 30)
-  
-  var xp = uniform(20, xDim-20)
-  var yp = uniform(20, yDim-20)
+var addBlock = function(yp, xDim) {
+  var w = 10
+  var h = 10
+  var xp = gaussian(Math.floor(xDim/2), 2)
   
   return genBlock(w,h,xp,yp)
 }
 
-var addBlocks = function(n)
-{
-  var world = [].concat(addBlock(350, 500))
+var addBlocks = function(n) {
+  var world = [].concat(addBlock(510-(n*20), 350))
 
   if(n > 1)
       return addBlocks(n - 1).concat(world)
@@ -37,14 +33,35 @@ var addBlocks = function(n)
 
 // makes a floor with evenly spaced buckets
 var makeFloor = function (xmin, xmax, width) {
-  return {shape: 'rect', static: true, dims: [400, 10], x: 175, y: 500}
+  return {shape: 'rect', static: true, dims: [400, 10], x: 175, y: 510}
           
 }
 
-globalStore.world = [].concat(makeFloor(-1000, 1000, 25))
-var n = Math.floor(gaussian(10, 2))
-globalStore.world = globalStore.world.concat(addBlocks(n))
+var enforceNumBlock = function(cond) {
+    return function() {
+        condition(globalStore.n > 3)
+        cond()
+    }
+}
 
-display(n)
-display(globalStore.world)
+var model = function(cond) {
+    return function() {
+        globalStore.world = [].concat(makeFloor(-1000, 1000, 25))
+        globalStore.n = Math.floor(gaussian(8, 2))
+        globalStore.world = globalStore.world.concat(addBlocks(globalStore.n))
+        cond()
+        return globalStore.world
+    }
+}
+
+var unconditionedModel = model(function(){})
+var enforcedModel = model(enforceNumBlock(function(){}))
+
+//Infer({method: 'rejection', samples:20}, enforcedModel)
+
+
+//display(globalStore.world)
+
+unconditionedModel()
+display(globalStore.n)
 physics.animate(1000, globalStore.world)
