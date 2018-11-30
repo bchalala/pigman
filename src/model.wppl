@@ -14,18 +14,16 @@ var genBlock = function (w, h, xp, yp) {
   return {shape: 'rect', static: false, dims: [w, h], x:xp, y: yp}
 }
 
-var addBlock = function(xDim, yDim) {
-  var w = uniform(5, 30)
-  var h = uniform(5, 30)
-  
-  var xp = uniform(20, xDim-20)
-  var yp = uniform(20, yDim-20)
+var addBlock = function(yp, xDim) {
+  var w = 10
+  var h = 10
+  var xp = gaussian(Math.floor(xDim/2), 2)
   
   return genBlock(w,h,xp,yp)
 }
 
 var addBlocks = function(n) {
-  var world = [].concat(addBlock(350, 500))
+  var world = [].concat(addBlock(510-(n*20), 350))
 
   if(n > 1)
       return addBlocks(n - 1).concat(world)
