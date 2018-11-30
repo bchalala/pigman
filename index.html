@@ -45,10 +45,7 @@
   </body>
   <script>
     // load scratch pad contents
-    $('#ed-scratch code').load('src/model.js');
-
-    
-     var getLanguage = function(code){
+    var getLanguage = function(code){
          var firstLine = code.split("\n")[0];
          if (firstLine == "// language: javascript") {
             return "javascript";
@@ -56,21 +53,17 @@
             return "webppl";
      }};
 
-    
-    $(document).ready(function() {
+    $('#ed-scratch code').load('src/model.js', function() {
         var scratchComp;
         $("pre").map(function(i,el) {
         var comp = wpEditor.setup(el, {language: getLanguage($(el).text())});
         if (el.id == 'ed-scratch') {
             scratchComp = comp;
         }
-    });});
-   
+        });
+    });
  
     var throwString = function() { throw 'string error' };
   </script>
-  <script>
-
-   </script>
   <script src="lib/webppl.min.js"></script>
 </html>
