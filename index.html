@@ -54,9 +54,9 @@
    };
    // load scratch pad contents
    var url = "src/model.js";
-   var code = "";
-   $.get(url, function(c) {code = c;});
-   $("#ed-scratch code").text(code);
+   var prog = "";
+   $.get(url, function(c) {prog = c;});
+   $("#ed-scratch code").text(prog);
 
    var scratchComp;
    $("pre").map(function(i,el) {
