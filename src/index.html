@@ -1,0 +1,1825 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <style>
+     body {
+         font-family: Menlo;
+         font-size: 12px;
+     }
+
+     pre {
+         border: 1px solid black;
+         border-radius: 2px;
+         margin: 0;
+         padding: 4px;
+     }
+
+     pre > code {
+         color: #bfbfbf;
+     }
+
+
+     .col {
+         width: 40%;
+         min-width: 600px;
+         margin: 1em;
+         float: left
+     }
+
+     canvas.paper {
+         border: 1px solid gray;
+     }
+
+    </style>
+    <link rel='stylesheet' type='text/css' href='webppl-editor.css'>
+    <script src="webppl-editor.js"></script>
+    <script src="jquery.js"></script>
+    <script src="paper.js"></script>
+    <script src="draw.js"></script>
+  </head>
+  <body>
+    <div class="col">
+      scratch pad:
+      <pre id="ed-scratch"><code></code></pre>
+
+      todo: throttle floods of ResultList updates
+      <pre><code>repeat(1000, function() { console.log(uniform(0,1))})</code></pre>
+
+      intercept console methods:
+      <pre><code>console.log("log")
+console.info("info")
+console.warn("warning")
+console.error("error")
+
+var as = repeat(20, function() { beta(0.001, 0.001) });
+util.warn("foo");
+var bs = repeat(20, function() { beta(0.001, 0.001) });
+
+console.mute();
+console.log("this won't show up")
+console.unmute();
+console.log("this will show up")
+
+console.log(1)
+console.log(1)
+console.log(1)
+console.log(2)
+console.log(2)
+console.log(2)
+console.log(3)
+
+3</code></pre>
+
+      MCMC callback:
+      <pre><code>var model = function() { return gaussian(0,1) };
+MCMC(model, { samples: 1e6, callbacks: [wpEditor.MCMCProgress()]});</code></pre>
+
+      Work across boxes 1 - store an inference result:
+      <pre><code>var posterior = ParticleFilter(function() { return gaussian(0,1) },100);
+wpEditor.put('n(0,1):100', posterior)</code></pre>
+
+      Work across boxes 2 - post-processing an inference result:
+      <pre><code>var posterior = wpEditor.get('n(0,1):100');
+_.max(posterior.support())</code></pre>
+
+      dippl.org computer vision example:
+      <pre id="dippl-cv-beach"><code>///fold:
+var targetImage = Draw(50, 50, true);
+loadImage(targetImage, "beach.png")
+
+var uniformDraw = function(xs){
+  var i = randomInteger(xs.length);
+  return xs[i];
+}
+
+var drawLines = function(drawObj, lines){
+  var line = lines[0];
+  drawObj.line(line[0], line[1], line[2], line[3], line[4], line[5], line[6]);
+  if (lines.length !== 1) {
+    drawLines(drawObj, lines.slice(1));
+  }
+}
+
+var randomStrokeWidth = function(){
+  var widths = [2, 4, 8, 16];
+  return uniformDraw(widths);
+}
+
+var randomOpacity = function(){
+  var opacities = [0, 0.2, .5];
+  return uniformDraw(opacities);
+}
+
+var _getRandomColor = function(i) {
+  if (i == 0){
+    return "";
+  } else {
+    // var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    return uniformDraw('04AF') + _getRandomColor(i-1);
+  }
+}
+
+var randomColor = function(){
+  return "#" + _getRandomColor(6);
+}
+
+var makeLines = function(n, lines){
+  var x1 = randomInteger(50);
+  var y1 = randomInteger(50);
+  var x2 = randomInteger(50);
+  var y2 = y1;
+  var strokeWidth = randomStrokeWidth();
+  var opacity = randomOpacity();
+  var color = randomColor();
+  var newLines = lines.concat([[x1, y1, x2, y2, strokeWidth, opacity, color]]);
+  return (n==1) ? newLines : makeLines(n-1, newLines);
+}
+///
+
+var counter = [];
+
+MH(
+  function(){
+    var lines = makeLines(8, []);
+
+
+    var showOutputImage = (counter.length % 100 == 0);
+    var finalGeneratedImage = Draw(50, 50, showOutputImage);
+
+    drawLines(finalGeneratedImage, lines);
+    var newScore = -targetImage.distance(finalGeneratedImage)/1000; // Increase to 10000 to see more diverse samples
+
+	if (!showOutputImage) {
+      finalGeneratedImage.destroy()
+    }
+
+    factor(newScore);
+
+    counter.push(1);
+
+    return lines
+   }, 2500);</code></pre>
+
+      Vanilla JS:
+      <pre><code>// language: javascript
+print('foo');
+[1,2,3].map(function(x) { return x + 1 })</code></pre>
+
+
+      Large file:
+      <pre><code>
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+globalStore["x"] = 1 + 1;
+      </code></pre>
+
+      untapifying AD values:
+      <pre><code>// test as a webppl call
+var m1 = function() { var x = gaussian(0,1); print(x); return x };
+// test as a vanilla js call
+var m2 = function() { var x = gaussian(0,1); window.print(x); return x };
+
+
+print(Infer({
+  method: 'MCMC',
+  kernel: 'HMC',
+  samples: 20,
+  model: m1
+}))
+
+print(Infer({
+  method: 'MCMC',
+  kernel: 'HMC',
+  samples: 20,
+  model: m2
+}))</code></pre>
+    </div>
+    <div class="col">
+      <h3>error handling</h3>
+
+      runtime error:
+      <pre><code>var x = 3;
+observe()
+55
+      </code></pre>
+
+
+      syntax - unmatched open bracket:
+      <pre><code>flip(</code></pre>
+
+      syntax - unmatched close bracket:
+      <pre><code>flip()
+)
+      </code></pre>
+
+      syntax - unmatched open bracket, multiline (TODO):
+      <pre><code>flip(
+0.5</code></pre>
+
+
+      syntax - assignment:
+      <pre><code>a = 9</code></pre>
+
+      syntax - trying to overwrite globalStore:
+      <pre><code>globalStore = 9</code></pre>
+
+      syntax - trying to assign to non-globalStore field:
+      <pre><code>a.b = 9</code></pre>
+
+      syntax - hanging dot:
+      <pre><code>globalStore.</code></pre>
+
+      tricky reference error:
+      <pre><code>print('started');
+var x = sum(repeat(1e5, flip))
+tricky + 5
+print('ended')</code></pre>
+
+      nested reference error:
+      <pre><code>var a = function () {
+    return {a:1}[notDefinedVariable]
+}
+return a()</code></pre>
+
+      header error:
+      <pre><code>map('not a function', [0])</code></pre>
+
+      throwing strings:
+      <pre><code>print('started');
+var x = sum(repeat(1e5, flip))
+window.throwString();
+print('ended')</code></pre>
+
+      external library error:
+      <pre><code>var posterior = wpEditor.get('foo');
+posterior
+      </code></pre>
+
+    </div>
+  </body>
+  <script>
+   var getLanguage = function(code){
+       var firstLine = code.split("\n")[0];
+       if (firstLine == "// language: javascript") {
+           return "javascript";
+       } else {
+           return "webppl";
+       }
+   };
+
+   // load scratch pad contents
+
+   $("#ed-scratch code").text(localStorage.getItem('ed-scratch'));
+
+   var scratchComp;
+   $("pre").map(function(i,el) {
+       var comp = wpEditor.setup(el, {language: getLanguage($(el).text())});
+       if (el.id == 'ed-scratch') {
+           scratchComp = comp;
+       }
+   });
+
+   // save scratch pad contents
+
+   window.onbeforeunload = function() { localStorage.setItem('ed-scratch', scratchComp.getCode()) }
+
+   var throwString = function() { throw 'string error' };
+  </script>
+
+
+  <script src="//s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-v0.9.7.js"></script>
+</html>
