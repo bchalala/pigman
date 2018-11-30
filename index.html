@@ -44,11 +44,20 @@
     </div>
   </body>
   <script>
+
    // load scratch pad contents
    var url = "src/model.js";
    var prog = "";
    $.get(url, function(c) {prog = c;});
    $("#ed-scratch code").text(prog);
+
+    var getLanguage = function(code){
+        var firstLine = code.split("\n")[0];
+        if (firstLine == "// language: javascript") {
+           return "javascript";
+        } else {
+           return "webppl";
+    }};
 
    var scratchComp;
    $("pre").map(function(i,el) {
