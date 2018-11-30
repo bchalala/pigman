@@ -40,11 +40,14 @@
   <body>
     <div class="col">
       model.js:
-      <pre onload="$('#ed-scratch code').load('src/model.js');" id="ed-scratch"><code></code></pre>
+      <pre id="ed-scratch"><code></code></pre>
     </div>
   </body>
   <script>
     // load scratch pad contents
+    $('#ed-scratch code').load('src/model.js');
+
+    
      var getLanguage = function(code){
          var firstLine = code.split("\n")[0];
          if (firstLine == "// language: javascript") {
@@ -53,13 +56,16 @@
             return "webppl";
      }};
 
-    var scratchComp;
-    $("pre").map(function(i,el) {
+    
+    $(document).ready(function() {
+        var scratchComp;
+        $("pre").map(function(i,el) {
         var comp = wpEditor.setup(el, {language: getLanguage($(el).text())});
         if (el.id == 'ed-scratch') {
             scratchComp = comp;
         }
-    });
+    });});
+   
  
     var throwString = function() { throw 'string error' };
   </script>
