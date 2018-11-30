@@ -1,0 +1,70 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <style>
+     body {
+         font-family: Menlo;
+         font-size: 12px;
+     }
+
+     pre {
+         border: 1px solid black;
+         border-radius: 2px;
+         margin: 0;
+         padding: 4px;
+     }
+
+     pre > code {
+         color: #bfbfbf;
+     }
+
+
+     .col {
+         width: 40%;
+         min-width: 600px;
+         margin: 1em;
+         float: left
+     }
+
+     canvas.paper {
+         border: 1px solid gray;
+     }
+
+    </style>
+    <link rel='stylesheet' type='text/css' href='lib/webppl-editor.css'>
+    <script src="lib/webppl-editor.js"></script>
+    <script src="lib/jquery.js"></script>
+    <script src="lib/paper.js"></script>
+    <script src="lib/draw.js"></script>
+  </head>
+  <body>
+    <div class="col">
+      model.js:
+      <pre id="ed-scratch"><code></code></pre>
+    </div>
+  </body>
+  <script>
+   var getLanguage = function(code){
+       var firstLine = code.split("\n")[0];
+       if (firstLine == "// language: javascript") {
+           return "javascript";
+       } else {
+           return "webppl";
+       }
+   };
+   // load scratch pad contents
+   var url = "src/model.js";
+   $("#ed-scratch code").load(url);
+
+   var scratchComp;
+   $("pre").map(function(i,el) {
+       var comp = wpEditor.setup(el, {language: getLanguage($(el).text())});
+       if (el.id == 'ed-scratch') {
+           scratchComp = comp;
+       }
+   });
+
+   var throwString = function() { throw 'string error' };
+  </script>
+  <script src="lib/webppl.min.js"></script>
+</html>
