@@ -1,3 +1,50 @@
-var x = 3;
-var z = 5;
-var y = 4;
+// Utilities
+
+var wi = function(i, w) { return Math.exp(-w*i); }
+
+// -----------------------
+
+// Creating the blocks
+
+var genBlock = function (w, h, xp, yp) {
+//   var width = Math.abs(x1-x2)
+//   var height = Math.abs(y1-y2)
+//   var xpos = (x1+x2)/2
+//   var ypos = (y1+y2)/2
+  return {shape: 'rect', static: false, dims: [w, h], x:xp, y: yp}
+}
+
+var addBlock = function(xDim, yDim)
+{
+  var w = uniform(5, 30)
+  var h = uniform(5, 30)
+  
+  var xp = uniform(20, xDim-20)
+  var yp = uniform(20, yDim-20)
+  
+  return genBlock(w,h,xp,yp)
+}
+
+var addBlocks = function(n)
+{
+  var world = [].concat(addBlock(350, 500))
+
+  if(n > 1)
+      return addBlocks(n - 1).concat(world)
+  
+  return world
+}
+
+// makes a floor with evenly spaced buckets
+var makeFloor = function (xmin, xmax, width) {
+  return {shape: 'rect', static: true, dims: [400, 10], x: 175, y: 500}
+          
+}
+
+globalStore.world = [].concat(makeFloor(-1000, 1000, 25))
+var n = Math.floor(gaussian(10, 2))
+globalStore.world = globalStore.world.concat(addBlocks(n))
+
+display(n)
+display(globalStore.world)
+physics.animate(1000, globalStore.world)
