@@ -46,11 +46,9 @@
   <script>
 
    // load scratch pad contents
-   window.onLoad(function() {
-    var url = "src/model.js";
+   var url = "src/model.js";
    $.get(url, function(code) {$("#ed-scratch code").text(code)});
-   })
-   
+
     var getLanguage = function(code){
         var firstLine = code.split("\n")[0];
         if (firstLine == "// language: javascript") {
