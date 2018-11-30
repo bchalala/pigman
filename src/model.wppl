@@ -17,7 +17,7 @@ var genBlock = function (w, h, xp, yp) {
 var addBlock = function(yp, xDim) {
   var w = 10
   var h = 10
-  var xp = gaussian(Math.floor(xDim/2), 2)
+  var xp = gaussian(Math.floor(xDim/2), 5)
   
   return genBlock(w,h,xp,yp)
 }
@@ -37,9 +37,18 @@ var makeFloor = function (xmin, xmax, width) {
           
 }
 
+var enforceWorldStable = function(cond) {
+    return function() {
+        var finalState = physics.run(1000, globalStore.world)
+        condition(physics.compareShapes(globalStore.world, finalState))
+
+        cond()
+    }
+}
+
 var enforceNumBlock = function(cond) {
     return function() {
-        condition(globalStore.n > 3)
+        condition(globalStore.n > 5)
         cond()
     }
 }
@@ -47,7 +56,7 @@ var enforceNumBlock = function(cond) {
 var model = function(cond) {
     return function() {
         globalStore.world = [].concat(makeFloor(-1000, 1000, 25))
-        globalStore.n = Math.floor(gaussian(8, 2))
+        globalStore.n = Math.floor(gaussian(5, 2))
         globalStore.world = globalStore.world.concat(addBlocks(globalStore.n))
         cond()
         return globalStore.world
@@ -55,13 +64,20 @@ var model = function(cond) {
 }
 
 var unconditionedModel = model(function(){})
-var enforcedModel = model(enforceNumBlock(function(){}))
+var enforcedNumBlocksModel = model(enforceNumBlock(function(){}))
+var enforcedStableModel = model(enforceWorldStable(function(){}))
+var enforcedStableNBlocksModel = model(enforceWorldStable(enforceNumBlock(function(){})))
 
-//Infer({method: 'rejection', samples:20}, enforcedModel)
+var out = Infer({method: 'rejection', samples:1}, enforcedStableNBlocksModel)
+//var out = Infer({method: 'MCMC', kernel: {HMC: {steps: 10, stepSize: 1}}, model:enforcedStableNBlocksModel})
 
 
-//display(globalStore.world)
+// unconditionedModel()
+// var finalState = physics.run(1, globalStore.world)
 
-unconditionedModel()
-display(globalStore.n)
-physics.animate(1000, globalStore.world)
+// display(globalStore.n)
+// print(globalStore.world)
+// print(finalState)
+// display(physics.compareShapes(globalStore.world, finalState))
+
+physics.animate(1000, sample(out))
