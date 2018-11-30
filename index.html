@@ -55,6 +55,16 @@
             return "webppl";
      }};
   </script>
-  
+  <script>
+    var scratchComp;
+    $("pre").map(function(i,el) {
+        var comp = wpEditor.setup(el, {language: getLanguage($(el).text())});
+        if (el.id == 'ed-scratch') {
+            scratchComp = comp;
+        }
+    });
+ 
+    var throwString = function() { throw 'string error' };
+   </script>
   <script src="lib/webppl.min.js"></script>
 </html>
