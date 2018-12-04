@@ -37,36 +37,32 @@ var makeFloor = function (xmin, xmax, width) {
           
 }
 
-var enforceWorldStable = function(cond) {
-    return function() {
-        var finalState = physics.run(1000, globalStore.world)
-        condition(physics.compareShapes(globalStore.world, finalState))
-
-        cond()
-    }
+var enforceWorldStable = function(model) {
+    var m = model()
+    var finalState = physics.run(1000, m)
+    condition(physics.compareShapes(m, finalState))
+    return m
 }
 
-var enforceNumBlock = function(cond) {
-    return function() {
-        condition(globalStore.n > 5)
-        cond()
-    }
+var enforceNumBlock = function(model) {
+    var m = model()
+    condition(globalStore.n > 5)
+    return m
 }
 
-var model = function(cond) {
-    return function() {
-        globalStore.world = [].concat(makeFloor(-1000, 1000, 25))
+var model = function() {
+        globalStore.scene = [].concat(makeFloor(-1000, 1000, 25))
         globalStore.n = Math.floor(gaussian(5, 2))
-        globalStore.world = globalStore.world.concat(addBlocks(globalStore.n))
-        cond()
+        globalStore.world = globalStore.scene.concat(addBlocks(globalStore.n))
         return globalStore.world
-    }
 }
 
-var unconditionedModel = model(function(){})
-var enforcedNumBlocksModel = model(enforceNumBlock(function(){}))
-var enforcedStableModel = model(enforceWorldStable(function(){}))
-var enforcedStableNBlocksModel = model(enforceWorldStable(enforceNumBlock(function(){})))
+
+
+var unconditionedModel = model()
+var enforcedNumBlocksModel = enforceNumBlock(model())
+var enforcedStableModel = enforceWorldStable(model())
+var enforcedStableNBlocksModel = enforceWorldStable(enforceNumBlock(model()))
 
 var out = Infer({method: 'rejection', samples:1}, enforcedStableNBlocksModel)
 //var out = Infer({method: 'MCMC', kernel: {HMC: {steps: 10, stepSize: 1}}, model:enforcedStableNBlocksModel})
