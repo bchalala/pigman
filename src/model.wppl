@@ -38,31 +38,35 @@ var makeFloor = function (xmin, xmax, width) {
 }
 
 var enforceWorldStable = function(model) {
+  return function() {
     var m = model()
     var finalState = physics.run(1000, m)
     condition(physics.compareShapes(m, finalState))
     return m
+  }
 }
 
 var enforceNumBlock = function(model) {
+  return function() {
     var m = model()
     condition(globalStore.n > 5)
     return m
+  }
 }
 
 var model = function() {
-        globalStore.scene = [].concat(makeFloor(-1000, 1000, 25))
-        globalStore.n = Math.floor(gaussian(5, 2))
-        globalStore.world = globalStore.scene.concat(addBlocks(globalStore.n))
-        return globalStore.world
+  globalStore.scene = [].concat(makeFloor(-1000, 1000, 25))
+  globalStore.n = Math.floor(gaussian(5, 2))
+  globalStore.world = globalStore.scene.concat(addBlocks(globalStore.n))
+  return globalStore.world
 }
 
 
 
-var unconditionedModel = model()
-var enforcedNumBlocksModel = enforceNumBlock(model())
-var enforcedStableModel = enforceWorldStable(model())
-var enforcedStableNBlocksModel = enforceWorldStable(enforceNumBlock(model()))
+var unconditionedModel = model
+var enforcedNumBlocksModel = enforceNumBlock(model)
+var enforcedStableModel = enforceWorldStable(model)
+var enforcedStableNBlocksModel = enforceWorldStable(enforceNumBlock(model))
 
 var out = Infer({method: 'rejection', samples:1}, enforcedStableNBlocksModel)
 //var out = Infer({method: 'MCMC', kernel: {HMC: {steps: 10, stepSize: 1}}, model:enforcedStableNBlocksModel})
