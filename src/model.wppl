@@ -9,7 +9,7 @@ var getDistFactor = function(init, final, n, csum, m, s) {
   if(n == -1)
     return csum;
 
-  return csum + softeq((init[n].x-init[n].x), m, s); + softeq((init[n].y-init[n].y), csum, m, s);
+  return csum + softeq(init[n].x-final[n].x, m, s) + softeq(init[n].y-final[n].y, m, s);
 }
 
 // -----------------------
@@ -48,7 +48,7 @@ var encourageWorldStable = function(model) {
     var m = model()
     var finalState = physics.run(1000, m)
     
-    factor(getDistFactor(m, finalState, m.length-1, 0, 0, 0.2))
+    factor(getDistFactor(m, finalState, m.length-1, 0, 0, 0.4))
     return m
   }
 }
@@ -79,7 +79,8 @@ var enforcedStableNBlocksModel = enforceWorldStable(sixBlockModel)
 var encourageWorldStableModel = encourageWorldStable(sixBlockModel)
 
 //var out = Infer({method: 'rejection', samples:1}, encourageWorldStableModel)
-var out = Infer({method: 'MCMC', samples: 10, burn: 5, lag: 5, verbose: false, kernel: {HMC: {steps: 1, stepSize: 5}}, model:enforcedStableNBlocksModel})
+//var out = Infer({method: 'MCMC', samples: 10, burn: 5, lag: 5, verbose: false, kernel: {HMC: {steps: 1, stepSize: 5}}, model:enforcedStableNBlocksModel})
+var out = Infer({method: 'MCMC', samples: 2, burn: 2, lag: 0, verbose: true, kernel: {HMC: {steps: 5, stepSize: 1}}, model:enforcedStableNBlocksModel})
 
 // physics.animate(1000, sample(out))
 print(out)
