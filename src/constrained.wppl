@@ -1,0 +1,14 @@
+
+var model = function() {
+  var x = uniform(-1, 1)
+  var y = uniform(-1, 1)
+  
+  var sigma = 0.05
+  
+  factor(Gaussian({mu:0, sigma:sigma}).score(y*y*y*y - y*y + x*x - .25))
+  
+  return {x:x, y:y}
+}
+
+Infer({method: 'MCMC', samples:1000, verbose:true, burn:10, kernel: {HMC: {steps: 2000, stepSize: .01}}, model: model});
+
