@@ -1,8 +1,6 @@
 // Utilities
 print('bugprint') //thrown away
 
-var wi = function(i, w) { return Math.exp(-w*i); }
-
 var softeq = function(a, m, s) {
   Gaussian({mu: m, sigma: s}).score(a);
 }
@@ -19,10 +17,6 @@ var getDistFactor = function(init, final, n, csum, m, s) {
 // Creating the blocks
 
 var genBlock = function (w, h, xp, yp) {
-//   var width = Math.abs(x1-x2)
-//   var height = Math.abs(y1-y2)
-//   var xpos = (x1+x2)/2
-//   var ypos = (y1+y2)/2
   return {shape: 'rect', static: false, dims: [w, h], x:xp, y: yp}
 }
 
@@ -68,40 +62,24 @@ var enforceWorldStable = function(model) {
   }
 }
 
-var enforceNumBlock = function(model) {
-  return function() {
-    var m = model()
-    condition(globalStore.n > 5)
-    return m
-  }
-}
-
-var model = function() {
-  globalStore.scene = [].concat(makeFloor(-1000, 1000, 25))
-  globalStore.n = 6 //Math.floor(gaussian(5, 2))
-  globalStore.world = globalStore.scene.concat(addBlocks(globalStore.n))
-  return globalStore.world
+var model = function(n) {
+    return function() {
+        globalStore.scene = [].concat(makeFloor(-1000, 1000, 25))
+        globalStore.n = n
+        globalStore.world = globalStore.scene.concat(addBlocks(globalStore.n))
+        return globalStore.world
+    }
 }
 
 
 
-var unconditionedModel = model
-var enforcedNumBlocksModel = enforceNumBlock(model)
-var enforcedStableModel = enforceWorldStable(model)
-var enforcedStableNBlocksModel = enforceWorldStable(enforceNumBlock(model))
-var encourageWorldStableModel = encourageWorldStable(model)
+var sixBlockModel = model(6)
+var enforcedStableModel = enforceWorldStable(sixBlockModel)
+var enforcedStableNBlocksModel = enforceWorldStable(sixBlockModel)
+var encourageWorldStableModel = encourageWorldStable(sixBlockModel)
 
 //var out = Infer({method: 'rejection', samples:1}, encourageWorldStableModel)
 var out = Infer({method: 'MCMC', samples: 10, burn: 5, lag: 5, verbose: false, kernel: {HMC: {steps: 1, stepSize: 5}}, model:enforcedStableNBlocksModel})
-
-
-// unconditionedModel()
-// var finalState = physics.run(1, globalStore.world)
-
-// display(globalStore.n)
-// print(globalStore.world)
-// print(finalState)
-// display(physics.compareShapes(globalStore.world, finalState))
 
 // physics.animate(1000, sample(out))
 print(out)

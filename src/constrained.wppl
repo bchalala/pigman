@@ -1,7 +1,7 @@
 
 var model = function() {
   var x = uniform(-1, 1)
-  var y = uniform(-1, 1)
+  var y = uniform(-1.3, 1.3)
   
   var sigma = 0.05
   
@@ -10,5 +10,5 @@ var model = function() {
   return {x:x, y:y}
 }
 
-Infer({method: 'MCMC', samples:1000, verbose:true, burn:10, kernel: {HMC: {steps: 2000, stepSize: .01}}, model: model});
-
+// Infer({method: 'MCMC', samples:1000, verbose:true, burn:100, kernel: {HMC: {steps: 2000, stepSize: .01}}, model: model});
+Infer({method: 'MCMC', samples:1000, verbose:true, burn:100, kernel: MH, model: model});
