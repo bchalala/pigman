@@ -1,3 +1,5 @@
+// -----------------------
+
 // Utilities
 print('bugprint') //thrown away
 
@@ -12,36 +14,10 @@ var getDistFactor = function(init, final, n, csum, m, s) {
   return csum + softeq(init[n].x-final[n].x, m, s) + softeq(init[n].y-final[n].y, m, s);
 }
 
+
 // -----------------------
 
-// Creating the blocks
-
-var genBlock = function (w, h, xp, yp) {
-  return {shape: 'rect', static: false, dims: [w, h], x:xp, y: yp}
-}
-
-var addBlock = function(yp, xDim) {
-  var w = 10
-  var h = 10
-  var xp = gaussian(Math.floor(xDim/2), 5)
-  
-  return genBlock(w,h,xp,yp)
-}
-
-var addBlocks = function(n) {
-  var world = [].concat(addBlock(510-(n*20), 350))
-
-  if(n > 1)
-      return addBlocks(n - 1).concat(world)
-  
-  return world
-}
-
-// makes a floor with evenly spaced buckets
-var makeFloor = function (xmin, xmax, width) {
-  return {shape: 'rect', static: true, dims: [400, 10], x: 175, y: 510}
-          
-}
+// Constraints
 
 var encourageWorldStable = function(model) {
   return function() {
@@ -62,16 +38,43 @@ var enforceWorldStable = function(model) {
   }
 }
 
+// -----------------------
+
+// Creating the model
+
+var genBlock = function (w, h, xp, yp) {
+    return {shape: 'rect', static: false, dims: [w, h], x:xp, y: yp}
+}
+  
+var addBlock = function(yp, xDim) {
+    var w = 10
+    var h = 10
+    var xp = gaussian(Math.floor(xDim/2), 5)
+
+    return genBlock(w,h,xp,yp)
+}
+  
+var addBlocks = function(n) {
+    var world = [].concat(addBlock(510-(n*20), 350))
+
+    if(n > 1)
+        return addBlocks(n - 1).concat(world)
+
+    return world
+}
+
 var model = function(n) {
     return function() {
-        globalStore.scene = [].concat(makeFloor(-1000, 1000, 25))
-        globalStore.n = n
-        globalStore.world = globalStore.scene.concat(addBlocks(globalStore.n))
-        return globalStore.world
+        scene = [].concat(makeFloor(-1000, 1000, 25))
+        world = scene.concat(addBlocks(n))
+        return world
     }
 }
 
 
+// -----------------------
+
+// Run inference
 
 var sixBlockModel = model(6)
 var enforcedStableModel = enforceWorldStable(sixBlockModel)
