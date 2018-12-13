@@ -83,14 +83,10 @@ var encourageWorldStableModel = encourageWorldStable(sixBlockModel)
 //var out = Infer({method: 'MCMC', samples: 10, burn: 5, lag: 5, verbose: false, kernel: {HMC: {steps: 1, stepSize: 5}}, model:enforcedStableNBlocksModel})
 var out = Infer({method: 'MCMC', samples: 100, burn: 20, lag: 0, verbose: true, kernel: {HMC: {steps: 20, stepSize: 2}}, model:enforcedStableNBlocksModel})
 
-<<<<<<< HEAD
-
 // var m = model()
 // var finalState = physics.run(1000, m)
 // print(getDistFactor(m, finalState, m.length-1, 0, 0.1))
 // physics.animate(1000, m)
 
-=======
->>>>>>> 5af58ab8d33b480729001b7789b591d03a2a5638
 // physics.animate(1000, sample(out))
 print(out)
