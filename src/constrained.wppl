@@ -1,17 +1,26 @@
-
 var model = function() {
   var x = uniform(-1, 1)
   var y = uniform(-1.3, 1.3)
   
-  var sigma = 0.05
+  var sigma = 0.02
   
   factor(Gaussian({mu:0, sigma:sigma}).score(y*y*y*y - y*y + x*x - .25))
-  // condition(y*y*y*y - y*y + x*x - .25 < 0.005)
+  
+  // conditions used for sampling methods
+  // condition(y*y*y*y - y*y + x*x - .25 < 0.005) 
   // condition(y*y*y*y - y*y + x*x - .25 > -0.005)
   
   return {x:x, y:y}
 }
 
-Infer({method: 'rejection', samples:1000, model:model)
-// Infer({method: 'MCMC', samples:1000, verbose:true, burn:100, kernel: {HMC: {steps: 2000, stepSize: .01}}, model: model});
-// Infer({method: 'MCMC', samples:1000, verbose:true, burn:100, kernel:'MH', model: model});
+// HMC
+Infer({method: 'MCMC', samples:1000, verbose:true, burn:100, 
+       kernel: {HMC: {steps: 2000, stepSize: .01}}, model: model});
+
+// MH
+// Infer({method: 'MCMC', samples:1000, verbose:true, 
+// burn:100, kernel:'MH', model: model});
+
+// Rejection Sampling (must comment factor, uncomment condition)
+// Infer({method: 'rejection', samples:1000, model:model})
+

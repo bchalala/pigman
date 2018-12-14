@@ -1,5 +1,3 @@
-// -----------------------
-
 // Utilities
 print('bugprint') //thrown away
 
@@ -7,24 +5,51 @@ var softeq = function(a, m, s) {
   Gaussian({mu: m, sigma: s}).score(a);
 }
 
-var getDistFactor = function(init, final, n, csum, m, s) {
+var getDistFactor = function(init, final, n, m, s) {
   if(n == -1)
-    return csum;
+    return 0
 
-  return csum + softeq(init[n].x-final[n].x, m, s) + softeq(init[n].y-final[n].y, m, s);
+  var totalsum = getDistFactor(init, final, n-1, m, s)
+  return totalsum + softeq(init[n].x-final[n].x, m, s) + softeq(init[n].y-final[n].y, m, s);
 }
-
 
 // -----------------------
 
-// Constraints
+// Creating the blocks
+
+var genBlock = function (w, h, xp, yp) {
+  return {shape: 'rect', static: false, dims: [w, h], x:xp, y: yp}
+}
+
+var addBlock = function(yp, xDim) {
+  var w = 10
+  var h = 10
+  var xp = gaussian(Math.floor(xDim/2), 5)
+  
+  return genBlock(w,h,xp,yp)
+}
+
+var addBlocks = function(n) {
+  var world = [].concat(addBlock(510-(n*20), 350))
+
+  if(n > 1)
+      return addBlocks(n - 1).concat(world)
+  
+  return world
+}
+
+// makes a floor with evenly spaced buckets
+var makeFloor = function (xmin, xmax, width) {
+  return {shape: 'rect', static: true, dims: [400, 10], x: 175, y: 510}
+          
+}
 
 var encourageWorldStable = function(model) {
   return function() {
     var m = model()
     var finalState = physics.run(1000, m)
     
-    factor(getDistFactor(m, finalState, m.length-1, 0, 0, 0.4))
+    factor(getDistFactor(m, finalState, m.length-1, 0, 0.4))
     return m
   }
 }
@@ -38,31 +63,6 @@ var enforceWorldStable = function(model) {
   }
 }
 
-// -----------------------
-
-// Creating the model
-
-var genBlock = function (w, h, xp, yp) {
-    return {shape: 'rect', static: false, dims: [w, h], x:xp, y: yp}
-}
-  
-var addBlock = function(yp, xDim) {
-    var w = 10
-    var h = 10
-    var xp = gaussian(Math.floor(xDim/2), 5)
-
-    return genBlock(w,h,xp,yp)
-}
-  
-var addBlocks = function(n) {
-    var world = [].concat(addBlock(510-(n*20), 350))
-
-    if(n > 1)
-        return addBlocks(n - 1).concat(world)
-
-    return world
-}
-
 var model = function(n) {
     return function() {
         scene = [].concat(makeFloor(-1000, 1000, 25))
@@ -72,9 +72,6 @@ var model = function(n) {
 }
 
 
-// -----------------------
-
-// Run inference
 
 var sixBlockModel = model(6)
 var enforcedStableModel = enforceWorldStable(sixBlockModel)
@@ -83,7 +80,7 @@ var encourageWorldStableModel = encourageWorldStable(sixBlockModel)
 
 //var out = Infer({method: 'rejection', samples:1}, encourageWorldStableModel)
 //var out = Infer({method: 'MCMC', samples: 10, burn: 5, lag: 5, verbose: false, kernel: {HMC: {steps: 1, stepSize: 5}}, model:enforcedStableNBlocksModel})
-var out = Infer({method: 'MCMC', samples: 2, burn: 2, lag: 0, verbose: true, kernel: {HMC: {steps: 5, stepSize: 1}}, model:enforcedStableNBlocksModel})
+var out = Infer({method: 'MCMC', samples: 100, burn: 20, lag: 0, verbose: true, kernel: {HMC: {steps: 20, stepSize: 2}}, model:enforcedStableNBlocksModel})
 
-// physics.animate(1000, sample(out))
-print(out)
+
+physics.animate(1000, sample(out))

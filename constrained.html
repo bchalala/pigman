@@ -43,18 +43,32 @@
     <script src="lib/webppl-editor.js"></script>   
   </head>
   <body>
-    <h1>pigman</h1>
-    <h3>Brett Chalabian, David Rangel, Kareem Ahmed</h3>
-
-    <p>
-        Using WebPPL for inverse graphics block stacking as well as function approximation.
-        Relative limitations of HMC and MH, and sampling methods.
-    </p>
-
-    <a href="./model.html">Stacked Blocks</a>
-    <a href="./constrained.html">Function Approximation</a>
-
-    <p>See the repository at <a href="https://github.com/bchalala/pigman">https://github.com/bchalala/pigman</a></p>
+    <div class="col">
+      constrained.wppl:
+      <pre id="ed-scratch"><code></code></pre>
+    </div>
   </body>
+  <script>
+    // load scratch pad contents
+    var getLanguage = function(code){
+         var firstLine = code.split("\n")[0];
+         if (firstLine == "// language: javascript") {
+            return "javascript";
+         } else {
+            return "webppl";
+     }};
+
+    $('#ed-scratch code').load('src/constrained.wppl', function() {
+        var scratchComp;
+        $("pre").map(function(i,el) {
+        var comp = wpEditor.setup(el, {language: getLanguage($(el).text())});
+        if (el.id == 'ed-scratch') {
+            scratchComp = comp;
+        }
+        });
+    });
+ 
+    var throwString = function() { throw 'string error' };
+  </script>
   <script src="lib/webppl.min.js"></script>
 </html>
